@@ -1,12 +1,8 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 ### Loading and preprocessing the data
-``` {r loadData, message=FALSE}
+
+```r
 # Load the required packages
 library(dplyr)
 library(ggplot2)
@@ -18,7 +14,8 @@ df.activity <- read.csv("activity.csv")
 ### What is mean total number of steps taken per day?\
 
 Set up the data and create the histogram.
-``` {r totalSteps}
+
+```r
 # Make a data frame of the total number of steps taken per day
 by_day <- group_by(df.activity, date)
 df.dailySteps <- summarise(by_day, steps = sum(steps, na.rm = TRUE))
@@ -31,18 +28,26 @@ ggplot(data = df.dailySteps, aes(x = steps)) +
         panel.background = element_blank(), axis.line = element_line(colour = "gray"))
 ```
 
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![](PA1_template_files/figure-html/totalSteps-1.png) 
+
 Find the mean and median.
-``` {r totalStepsMean}
+
+```r
 # Report the mean and median of steps taken per day
 mean.steps <- mean(df.dailySteps$steps, na.rm = TRUE)
 median.steps <- median(df.dailySteps$steps, na.rm = TRUE)
 ```
 
-The mean is `r round(mean.steps,0)` and the median is `r median.steps`.
+The mean is 9354 and the median is 10395.
 
 ### What is the average daily activity pattern?
 Set up the data and create the time series plot for average daily steps.
-``` {r dailyAverage}
+
+```r
 # Create a data frame of the average daily activity
 by_interval <- group_by(df.activity, interval)
 df.intervalSteps <- summarise(by_interval, steps = mean(steps, na.rm = TRUE))
@@ -53,17 +58,21 @@ ggplot(df.intervalSteps, aes(interval, steps)) + geom_line() +
               panel.background = element_blank(), axis.line = element_line(colour = "gray"))
 ```
 
+![](PA1_template_files/figure-html/dailyAverage-1.png) 
+
 Find the position of the max number of steps and take that row.
-``` {r dailyAverageMax}
+
+```r
 # Find the interval with the max number of steps
 maxPos <- which.max(df.intervalSteps$steps)
 maxRow <- df.intervalSteps[maxPos, ]
 ```
-The interval with the maximum number of steps is `r maxRow[1]` and the number of steps is `r round(maxRow[2],0)`.
+The interval with the maximum number of steps is 835 and the number of steps is 206.
 
 ### Imputing missing values
 Count the number of rows with missing values. Replace these missing values with the interval average across all days. Create a histogram of this new data.
-``` {r missingVals}
+
+```r
 # Count number of rows with NA values
 missingCount <- sum(is.na(df.activity))
 
@@ -89,17 +98,25 @@ ggplot(data = df.dailyStepsFill, aes(x = steps)) +
         panel.background = element_blank(), axis.line = element_line(colour = "gray"))
 ```
 
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![](PA1_template_files/figure-html/missingVals-1.png) 
+
 Find the mean and median of this new data to compare it to the orginial data.
-``` {r missingValsMean}
+
+```r
 # Report the mean and median of steps taken per day
 mean.stepsFill <- mean(df.dailyStepsFill$steps, na.rm = TRUE)
 median.stepsFill <- median(df.dailyStepsFill$steps, na.rm = TRUE)
 ```
-The new mean is `r as.integer(round(mean.stepsFill,0))` and the new median is `r as.integer(round(median.stepsFill))`. Not only are the new mean and median now equal as a result of this imputed data, they are both higher than the original mean, `r round(mean.steps,0)`, and median, `r median.steps`.
+The new mean is 10766 and the new median is 10766. Not only are the new mean and median now equal as a result of this imputed data, they are both higher than the original mean, 9354, and median, 10395.
 
 ### Are there differences in activity patterns between weekdays and weekends?
 Create a factor variable to split the average daily steps by weekday and weekend.
-``` {r dayType}
+
+```r
 # Create a weekday/weekend factor variable
 df.activityFactor <- df.activity
 df.activityFactor$date <- as.Date(df.activityFactor$date)
@@ -115,10 +132,13 @@ df.intervalStepsFactor <- summarise(by_interval, steps = mean(steps, na.rm = TRU
 ```
 
 Create the plot.
-``` {r dayTypePlot}
+
+```r
 # Make a time series plot
 ggplot(df.intervalStepsFactor, aes(interval, steps)) + geom_line() + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
         panel.background = element_blank(), axis.line = element_line(colour = "gray")) +
   facet_wrap(~daytype, nrow=1)
 ```
+
+![](PA1_template_files/figure-html/dayTypePlot-1.png) 
